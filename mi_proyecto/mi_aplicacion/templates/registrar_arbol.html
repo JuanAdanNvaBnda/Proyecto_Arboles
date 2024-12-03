@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Árbol</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+        }
+        .form-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #4CAF50;
+        }
+        .btn-custom {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-custom:hover {
+            background-color: #45a049;
+        }
+        .form-control, .form-select, textarea {
+            margin-bottom: 15px;
+        }
+        table {
+            margin-top: 30px;
+            width: 100%;
+        }
+        table th, table td {
+            text-align: center;
+            padding: 8px;
+        }
+        table thead {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Contenedor principal -->
+    <div class="container mt-5">
+        <div class="form-container">
+            <h1 class="text-center">Registrar Nuevo Árbol</h1>
+
+            <!-- Formulario para registrar un nuevo árbol -->
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">Nombre:</label>
+                    <input type="text" name="nombre" id="nombre" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="edad_aproximada" class="form-label">Edad Aproximada:</label>
+                    <input type="number" name="edad_aproximada" id="edad_aproximada" class="form-control" min="0" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="especie" class="form-label">Especie:</label>
+                    <input type="text" name="especie" id="especie" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="latitud" class="form-label">Latitud:</label>
+                    <input type="text" name="latitud" id="latitud" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="longitud" class="form-label">Longitud:</label>
+                    <input type="text" name="longitud" id="longitud" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="descripcion" class="form-label">Descripción:</label>
+                    <textarea name="descripcion" id="descripcion" class="form-control" rows="4" required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="cuidados" class="form-label">Cuidados:</label>
+                    <textarea name="cuidados" id="cuidados" class="form-control" rows="4" required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="riego_por_semana" class="form-label">Riegos por Semana:</label>
+                    <input type="number" name="riego_por_semana" id="riego_por_semana" class="form-control" min="0" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="imagen" class="form-label">Imagen:</label>
+                    <input type="file" name="imagen" id="imagen" class="form-control">
+                </div>
+
+                <!-- Botón para obtener la ubicación actual -->
+                <button type="button" class="btn btn-info w-100 mb-3" onclick="obtenerUbicacion()">Usar mi Ubicación</button>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-custom w-100">Registrar Árbol</button>
+                </div>
+            </form>
+        </div>
+
+        <h2 class="text-center mt-5">Árboles Registrados</h2>
+
+        <!-- Tabla de Árboles Registrados -->
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Edad</th>
+                        <th>Especie</th>
+                        <th>Latitud</th>
+                        <th>Longitud</th>
+                        <th>Descripción</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for arbol in arboles %}
+                    <tr>
+                        <td>{{ arbol.nombre }}</td>
+                        <td>{{ arbol.edad_aproximada }}</td>
+                        <td>{{ arbol.especie }}</td>
+                        <td>{{ arbol.latitud }}</td>
+                        <td>{{ arbol.longitud }}</td>
+                        <td>{{ arbol.descripcion }}</td>
+                        <td>
+                            <a href="{% url 'editar_arbol' arbol.id %}">
+                                <button class="btn btn-warning btn-sm">Editar</button>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Función para obtener la ubicación actual del usuario
+        function obtenerUbicacion() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    // Obtener latitud y longitud
+                    var lat = position.coords.latitude;
+                    var lon = position.coords.longitude;
+
+                    // Asignar los valores a los campos correspondientes
+                    document.getElementById("latitud").value = lat;
+                    document.getElementById("longitud").value = lon;
+
+                    // Opcional: Mostrar la latitud y longitud en consola o en el DOM
+                    console.log("Latitud: " + lat + ", Longitud: " + lon);
+                }, function(error) {
+                    alert("No se pudo obtener la ubicación.");
+                });
+            } else {
+                alert("La geolocalización no está soportada por este navegador.");
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+
+
